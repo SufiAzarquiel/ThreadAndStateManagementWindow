@@ -15,8 +15,6 @@ public class Window extends JFrame implements Runnable, ActionListener {
     /**
      * sufiDev - November 2023
      */
-    @Serial
-    private static final long serialVersionUID = 1L;
     private final JButton btn;
     private final Shared flag;
     private final Vector v;
@@ -57,8 +55,9 @@ public class Window extends JFrame implements Runnable, ActionListener {
                         throw new RuntimeException(e);
                     }
                 }
-
             }
+            
+            setTitle(flag.title(windowNumber));
 
             v.nextPos();
             this.setLocation(v.cx(), v.cy());
