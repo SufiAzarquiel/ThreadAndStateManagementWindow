@@ -21,15 +21,6 @@ public class Shared {
         };
     }
 
-    public String title(int windowNumber) {
-        return switch (windowNumber) {
-            case 1 -> "n: " + windowNumber;
-            case 2 -> "n2: " + windowNumber;
-            case 3 -> "n3: " + windowNumber;
-            default -> throw new IllegalStateException("Unexpected value: " + windowNumber);
-        };
-    }
-
     public void updateState(int windowNumber) {
         switch (state) {
             case 0:

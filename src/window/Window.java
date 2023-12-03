@@ -20,6 +20,7 @@ public class Window extends JFrame implements Runnable, ActionListener {
     private final Vector v;
     private final long DELAY;
     private final int windowNumber;
+    private int state = 0;
 
     public Window(int i, Shared flag) {
         super();
@@ -46,6 +47,7 @@ public class Window extends JFrame implements Runnable, ActionListener {
     }
 
     public void run() {
+        int countdown = 7;
         while (true) {
             synchronized (flag) {
                 while (!flag.isMoving(windowNumber)) {
@@ -57,7 +59,14 @@ public class Window extends JFrame implements Runnable, ActionListener {
                 }
             }
             
-            setTitle(flag.title(windowNumber));
+            setTitle(
+                    switch (state) {
+                        case 0 -> "n: " + windowNumber;
+                        case 1 -> String.valueOf(countdown);
+                        case 2 -> "1";
+                        default -> throw new IllegalStateException("Unexpected value: " + state);
+                    }
+            );
 
             v.nextPos();
             this.setLocation(v.cx(), v.cy());
@@ -82,6 +91,16 @@ public class Window extends JFrame implements Runnable, ActionListener {
     private void handleButton() {
         synchronized (flag) {
             flag.updateState(windowNumber);
+            updateState();
         }
+    }
+
+    private void updateState() {
+        state = switch (state) {
+            case 0 -> 1;
+            case 1 -> 2;
+            case 2 -> 0;
+            default -> throw new IllegalStateException("Unexpected value: " + state);
+        };
     }
 }
