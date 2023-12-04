@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.Serial;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,29 +15,32 @@ public class Window extends JFrame implements Runnable, ActionListener {
      * sufiDev - November 2023
      */
     private final JButton btn;
-    private final Shared flag;
+    private final Shared shared;
     private final Vector v;
     private final long DELAY;
     private final int windowNumber;
-    private int state = 0;
 
-    public Window(int i, Shared flag) {
+    public Window(int i, Shared shared) {
         super();
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(d.width / 5, d.height / 5);
-        String title = "n: " + i;
+        int height = d.height / 5;
+        int width = d.width / 5;
+        setSize(width, height);
+        String title = "n: " + i + " - " + 0 + "s";
         setTitle(title);
         setResizable(false);
         setVisible(false);
 
-        this.flag = flag;
+        this.shared = shared;
         windowNumber = i;
 
         btn = new JButton("Stop");
         add(btn);
         btn.addActionListener(this);
 
-        v = new Vector(d.width, d.height, 2);
+        v = new Vector(d.width, d.height, 2, width, height);
+        setLocation(v.cx(), v.cy());
+        setVisible(true);
         DELAY = 20;
 
         Thread thread = new Thread(this);
@@ -47,32 +49,22 @@ public class Window extends JFrame implements Runnable, ActionListener {
     }
 
     public void run() {
-        int countdown = 7;
         while (true) {
-            synchronized (flag) {
-                while (!flag.isMoving(windowNumber)) {
+            synchronized (shared) {
+                while (!shared.isMoving(windowNumber)) {
                     try {
-                        flag.wait();
+                        shared.wait();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
             }
-            
-            setTitle(
-                    switch (state) {
-                        case 0 -> "n: " + windowNumber;
-                        case 1 -> String.valueOf(countdown);
-                        case 2 -> "1";
-                        default -> throw new IllegalStateException("Unexpected value: " + state);
-                    }
-            );
+
 
             v.nextPos();
             this.setLocation(v.cx(), v.cy());
 
-            if (!isVisible())
-                setVisible(true);
+
 
             try {
                 Thread.sleep(DELAY);
@@ -89,18 +81,12 @@ public class Window extends JFrame implements Runnable, ActionListener {
     }
 
     private void handleButton() {
-        synchronized (flag) {
-            flag.updateState(windowNumber);
-            updateState();
+        synchronized (shared) {
+            shared.updateState(windowNumber);
         }
     }
 
-    private void updateState() {
-        state = switch (state) {
-            case 0 -> 1;
-            case 1 -> 2;
-            case 2 -> 0;
-            default -> throw new IllegalStateException("Unexpected value: " + state);
-        };
+    public int getWindowNumber() {
+        return windowNumber;
     }
 }

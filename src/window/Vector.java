@@ -5,17 +5,20 @@ public class Vector {
     private int y;
     private final int max_x;
     private final int max_y;
-    private int angle; // en grados enteros
+    private int angle;
     private final int mod;
+    private final int width;
+    private final int height;
 
-    public Vector(int mx, int my, int mod) {
+    public Vector(int mx, int my, int mod, int width, int height) {
         max_x = mx;
         max_y = my;
         this.mod = mod;
-        x = max_x / 2;
-        y = max_y / 2;
+        x = (int) (Math.random() * max_x * 0.7 + 1);
+        y = (int) (Math.random() * max_y * 0.7 + 1);
         angle = (int) (Math.random() * 360 + 1);
-        System.out.println(angle);
+        this.width = width;
+        this.height = height;
     }
 
     public void nextPos() {
@@ -23,10 +26,10 @@ public class Vector {
         int y0 = y;
         y0 += (int) (Math.sin(Math.toRadians(angle)) * mod);
         x0 += (int) (Math.cos(Math.toRadians(angle)) * mod);
-        if (x0 < 0 || x0 > max_x)
+        if (x0 < 0 || x0 + width > max_x)
             angle = 180 - angle;
         else {
-            if (y0 < 0 || y0 > max_y)
+            if (y0 < 0 || y0 + height > max_y)
                 angle = 360 - angle;
             else {
                 x = x0;
